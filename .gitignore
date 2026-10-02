@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+build/
+dist/
+
+# datasets and training outputs stay out of git
+data/
+runs/
+*.pt
+*.onnx
+*.eim
+
+# runtime build products
+runtime/build/
+*.o
+*.a
+*.so
+*.dylib
+
+.DS_Store
