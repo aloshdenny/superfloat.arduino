@@ -19,7 +19,7 @@ endif
 
 .PHONY: all test clean
 
-all: $(LIB) $(BUILD)/selftest
+all: $(LIB) $(BUILD)/selftest $(BUILD)/sfrt_run
 
 $(BUILD):
 	mkdir -p $(BUILD)
@@ -29,6 +29,9 @@ $(LIB): $(SRCS) $(HDRS) | $(BUILD)
 
 $(BUILD)/selftest: tests/selftest.c $(SRCS) $(HDRS) | $(BUILD)
 	$(CC) $(REQUIRED) $(CFLAGS) -o $@ tests/selftest.c $(SRCS)
+
+$(BUILD)/sfrt_run: tools/sfrt_run.c $(SRCS) $(HDRS) | $(BUILD)
+	$(CC) $(REQUIRED) $(CFLAGS) -o $@ tools/sfrt_run.c $(SRCS)
 
 test: $(BUILD)/selftest
 	./$(BUILD)/selftest
