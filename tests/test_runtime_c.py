@@ -77,3 +77,14 @@ def test_wrong_input_shape(runtime):
     model = runtime.Model(sfm.dumps(random_graph()))
     with pytest.raises(ValueError):
         model.run(np.zeros((2, 2, 3), np.int8))
+
+
+def test_cli_runner_matches_reference(runtime, tmp_path):
+    g = random_graph(seed=6, wbits=4)
+    (tmp_path / "m.sfm").write_bytes(sfm.dumps(g))
+    x = np.random.default_rng(5).integers(-128, 128, g.input_shape).astype(np.int8)
+    x.tofile(tmp_path / "x.bin")
+    out = subprocess.run([str(ROOT / "runtime" / "build" / "sfrt_run"), str(tmp_path / "m.sfm"),
+                          str(tmp_path / "x.bin")], check=True, capture_output=True, text=True)
+    got = np.array(out.stdout.split(), dtype=np.int64)
+    np.testing.assert_array_equal(got, ref.run(g, x))
