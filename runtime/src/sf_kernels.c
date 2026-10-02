@@ -8,7 +8,7 @@
  */
 #include "sf_runtime.h"
 
-#if defined(__ARM_NEON) && defined(__aarch64__)
+#if defined(__ARM_NEON) && defined(__aarch64__) && !defined(SF_NO_NEON)
 #include <arm_neon.h>
 #define SF_HAVE_NEON 1
 #endif
