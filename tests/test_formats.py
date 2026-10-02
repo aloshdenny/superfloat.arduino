@@ -53,3 +53,35 @@ def test_rejects_out_of_schema_widths():
         SFFormat(17)
     with pytest.raises(ValueError):
         get_format("fp8")
+
+
+def test_widen_is_exact_shift():
+    from sfedge.formats import widen
+
+    q4 = np.arange(-7, 8)
+    q8 = widen(q4, SF4, SF8)
+    np.testing.assert_array_equal(q8, q4 * 16)
+    np.testing.assert_array_equal(SF8.decode(q8), SF4.decode(q4))
+
+
+@pytest.mark.parametrize("n", [1, 2, 7, 64, 1001])
+def test_sf4_pack_roundtrip(n):
+    from sfedge.formats import pack_sf4, unpack_sf4
+
+    q = np.random.default_rng(n).integers(-7, 8, n).astype(np.int8)
+    packed = pack_sf4(q)
+    assert packed.size == (n + 1) // 2
+    np.testing.assert_array_equal(unpack_sf4(packed, n), q)
+
+
+def test_sf4_pack_layout_is_low_nibble_first():
+    from sfedge.formats import pack_sf4
+
+    np.testing.assert_array_equal(pack_sf4([1, -1]), [0xF1])
+
+
+def test_sf4_pack_rejects_out_of_range():
+    from sfedge.formats import pack_sf4
+
+    with pytest.raises(ValueError):
+        pack_sf4([8])
