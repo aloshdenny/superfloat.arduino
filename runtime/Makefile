@@ -3,7 +3,8 @@
 #   make CC=aarch64-linux-gnu-gcc
 CC ?= cc
 CFLAGS ?= -O3
-CFLAGS += -std=c99 -Wall -Wextra -Wpedantic -Werror -Iinclude
+# Kept separate so `make CFLAGS=...` adds options instead of dropping these.
+REQUIRED := -std=c99 -Wall -Wextra -Wpedantic -Werror -Iinclude
 BUILD := build
 SRCS := src/sf_kernels.c src/sf_model.c
 HDRS := include/sf_runtime.h
@@ -24,10 +25,10 @@ $(BUILD):
 	mkdir -p $(BUILD)
 
 $(LIB): $(SRCS) $(HDRS) | $(BUILD)
-	$(CC) $(CFLAGS) -fPIC $(SHARED) -o $@ $(SRCS)
+	$(CC) $(REQUIRED) $(CFLAGS) -fPIC $(SHARED) -o $@ $(SRCS)
 
 $(BUILD)/selftest: tests/selftest.c $(SRCS) $(HDRS) | $(BUILD)
-	$(CC) $(CFLAGS) -o $@ tests/selftest.c $(SRCS)
+	$(CC) $(REQUIRED) $(CFLAGS) -o $@ tests/selftest.c $(SRCS)
 
 test: $(BUILD)/selftest
 	./$(BUILD)/selftest
