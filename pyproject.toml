@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sfedge"
+version = "0.1.0"
+description = "Integer-only SuperFloat (SFx) inference for edge AI"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Alosh Denny", email = "aloshdenny@gmail.com" }]
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+train = ["torch>=2.2", "torchvision>=0.17", "pillow>=10"]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["sfedge*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
