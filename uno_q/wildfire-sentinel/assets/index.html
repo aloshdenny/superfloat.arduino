@@ -48,6 +48,7 @@
   <div class="panel">
     <dl>
       <dt>Status</dt><dd id="state">connecting</dd>
+      <dt>Mode</dt><dd id="mode">-</dd>
       <dt>Frame time</dt><dd id="ms">-</dd>
       <dt>Frames</dt><dd id="seq">-</dd>
       <dt>Queued alerts</dt><dd id="pending">-</dd>
@@ -82,6 +83,7 @@
       }));
       $("title").textContent = s.node_id;
       $("state").textContent = s.state === 0 ? "watching" : "camera fault";
+      $("mode").textContent = s.night ? "night (thermal tier leads)" : "day";
       $("ms").textContent = `${s.frame_ms} ms`;
       $("seq").textContent = s.seq;
       $("pending").textContent = s.pending_alerts;
