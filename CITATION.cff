@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "superfloat.arduino: integer-only SuperFloat inference for the Arduino UNO Q"
+authors:
+  - family-names: Denny
+    given-names: Alosh
+    email: aloshdenny@gmail.com
+repository-code: "https://github.com/aloshdenny/superfloat.arduino"
+license: MIT
+version: 0.1.0
+date-released: 2026-10-03
+keywords:
+  - superfloat
+  - fixed-point
+  - quantization
+  - edge-ai
+  - arduino-uno-q
+  - wildfire-detection
+references:
+  - type: software
+    title: "SuperFloat: Accelerators for AI on Edge. Reimagined."
+    authors:
+      - family-names: Denny
+        given-names: Alosh
+    repository-code: "https://github.com/aloshdenny/superfloat"
