@@ -1,0 +1,9 @@
+profiles:
+  default:
+    platforms:
+      - platform: arduino:zephyr
+    libraries:
+      - dependency: ArduinoGraphics (1.1.4)
+      # Thermal tier (set SENTINEL_THERMAL to 1 in sketch.ino):
+      # - Adafruit MLX90640 (1.1.1)
+default_profile: default

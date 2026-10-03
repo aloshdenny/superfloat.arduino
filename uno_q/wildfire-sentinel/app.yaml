@@ -1,0 +1,8 @@
+name: Wildfire Sentinel
+icon: 🔥
+description: >-
+  On-device wildfire smoke and ignition detection. A SuperFloat integer CNN
+  scores camera tiles on the Linux side; the MCU runs a thermal tier, the
+  alarm and a watchdog. No images leave the board.
+bricks:
+  - arduino:web_ui

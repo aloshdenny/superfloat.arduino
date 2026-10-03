@@ -1,0 +1,4 @@
+# Intentionally empty. numpy comes with App Lab's python-apps-base image
+# (through its pinned OpenCV build), and the SuperFloat runtime is vendored
+# into python/vendor by uno_q/deploy.sh. Do not add opencv here: the image
+# pins its own GStreamer-enabled build and a second one conflicts with it.
