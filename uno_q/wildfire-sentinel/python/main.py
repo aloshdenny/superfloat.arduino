@@ -49,6 +49,7 @@ class Sentinel:
                 transports.insert(0, WebhookTransport(cfg.webhook_url, token=cfg.webhook_token))
         self.queue = AlertQueue(cfg.queue_path, transports)
         self.seq = 0
+        self.night = False
         self.state = STATE_OK
         self.last_probs = None
         self._thermal = []
@@ -76,6 +77,7 @@ class Sentinel:
         else:
             self.state = STATE_OK
             rgb = frame[..., ::-1] if self.cfg.camera_bgr else frame
+            self.night = luma(rgb) < self.cfg.night_luma
             self.last_probs = self.detector.classify(rgb)
             events = self.voter.update(self.last_probs, t)
             for ev in events:
@@ -90,17 +92,27 @@ class Sentinel:
         self.queue.flush()
         return events
 
+    def period(self) -> float:
+        return self.cfg.night_period_s if self.night else self.cfg.period_s
+
     def status(self) -> dict:
         return {
             "node_id": self.cfg.node_id,
             "seq": self.seq,
             "state": self.state,
+            "night": self.night,
             "levels": self.voter.levels,
             "grid": [self.grid.cols, self.grid.rows],
             "frame_ms": round(self.detector.last_ms, 1),
             "pending_alerts": len(self.queue.pending),
             "bridge_errors": getattr(self.board, "errors", 0),
         }
+
+
+def luma(rgb) -> float:
+    """Mean Rec. 601 luma of a subsampled frame (cheap: every 8th pixel)."""
+    sub = rgb[::8, ::8].astype("float32")
+    return float((sub[..., 0] * 0.299 + sub[..., 1] * 0.587 + sub[..., 2] * 0.114).mean())
 
 
 def _vendored_lib():
@@ -179,7 +191,7 @@ def main(argv=None) -> int:
     def loop():
         t0 = time.monotonic()
         sentinel.step(next(frames))
-        time.sleep(max(0.0, cfg.period_s - (time.monotonic() - t0)))
+        time.sleep(max(0.0, sentinel.period() - (time.monotonic() - t0)))
 
     App.run(user_loop=loop)
     return 0

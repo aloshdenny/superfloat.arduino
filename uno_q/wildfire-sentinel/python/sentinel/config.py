@@ -31,6 +31,11 @@ class Config:
     resolution: tuple[int, int] = (1280, 720)
     camera_bgr: bool = True  # OpenCV-backed cameras deliver BGR
     period_s: float = 2.0  # one frame every period_s; smoke moves slowly
+    # Smoke is invisible in the dark, so the camera tier slows down at night
+    # and the thermal tier (MCU) carries detection. Darkness is judged from
+    # the frame itself, so no clock, timezone or sun calculation is needed.
+    night_period_s: float = 10.0
+    night_luma: float = 25.0  # mean luma (0-255) below which a frame is "night"
 
     grid_cols: int = 5
     grid_rows: int = 3
