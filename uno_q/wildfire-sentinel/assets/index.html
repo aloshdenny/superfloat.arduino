@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wildfire Sentinel</title>
+<style>
+  /* Served by the board itself, often with no internet: no external assets. */
+  :root {
+    --bg: #fafafa; --panel: #ffffff; --text: #171717; --muted: #737373;
+    --line: #e5e5e5; --clear: #e5e5e5; --smoke: #a3a3a3; --flame: #dc2626;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0a0a; --panel: #171717; --text: #fafafa; --muted: #a3a3a3;
+    --line: #262626; --clear: #262626; --smoke: #737373; --flame: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 32px 16px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; }
+  h1 { font-size: 18px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  button {
+    font: inherit; color: var(--muted); background: none; border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-top: 16px; }
+  .grid { display: grid; gap: 4px; }
+  .tile { aspect-ratio: 1; border-radius: 4px; background: var(--clear); }
+  .tile.l1 { background: var(--smoke); }
+  .tile.l2 { background: var(--flame); }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title">Wildfire Sentinel</h1>
+    <button id="theme" type="button">Dark</button>
+  </header>
+  <p class="muted">Camera tiles, as the model sees them. Grey: smoke, red: flame. No images are stored or shown.</p>
+  <div class="panel"><div class="grid" id="grid"></div></div>
+  <div class="panel">
+    <dl>
+      <dt>Status</dt><dd id="state">connecting</dd>
+      <dt>Frame time</dt><dd id="ms">-</dd>
+      <dt>Frames</dt><dd id="seq">-</dd>
+      <dt>Queued alerts</dt><dd id="pending">-</dd>
+      <dt>Bridge errors</dt><dd id="bridge">-</dd>
+    </dl>
+  </div>
+</main>
+<script>
+  const root = document.documentElement;
+  const themeBtn = document.getElementById("theme");
+  function setTheme(t) {
+    root.dataset.theme = t;
+    themeBtn.textContent = t === "dark" ? "Light" : "Dark";
+    try { localStorage.setItem("theme", t); } catch (e) {}
+  }
+  let saved = "light";
+  try { saved = localStorage.getItem("theme") || "light"; } catch (e) {}
+  setTheme(saved);
+  themeBtn.onclick = () => setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+
+  const $ = (id) => document.getElementById(id);
+  async function poll() {
+    try {
+      const s = await (await fetch("/api/status", { cache: "no-store" })).json();
+      const [cols] = s.grid;
+      const grid = $("grid");
+      grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      grid.replaceChildren(...s.levels.map((l) => {
+        const d = document.createElement("div");
+        d.className = `tile l${l}`;
+        return d;
+      }));
+      $("title").textContent = s.node_id;
+      $("state").textContent = s.state === 0 ? "watching" : "camera fault";
+      $("ms").textContent = `${s.frame_ms} ms`;
+      $("seq").textContent = s.seq;
+      $("pending").textContent = s.pending_alerts;
+      $("bridge").textContent = s.bridge_errors;
+    } catch (e) {
+      $("state").textContent = "unreachable";
+    }
+  }
+  poll();
+  setInterval(poll, 2000);
+</script>
+</body>
+</html>
