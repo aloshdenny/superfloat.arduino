@@ -1,0 +1,22 @@
+{
+  "node_id": "ridge-01",
+  "lat": null,
+  "lon": null,
+  "model": "/app/models/smokenet.sfm",
+  "threads": 4,
+  "resolution": [1280, 720],
+  "period_s": 2.0,
+  "grid_cols": 5,
+  "grid_rows": 3,
+  "tile": 128,
+  "voter": {
+    "hit_threshold": 0.5,
+    "smoke_k": 4,
+    "smoke_n": 6,
+    "flame_k": 2,
+    "flame_n": 3,
+    "cooldown_s": 600
+  },
+  "queue_path": "/app/data/alerts.jsonl",
+  "webhook_url": null
+}
