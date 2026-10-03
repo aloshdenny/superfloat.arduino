@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    # x86_64 exercises the scalar kernels, arm64 the NEON path the UNO Q uses.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          pip install numpy pillow pytest
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Runtime self-test
+        run: make -C runtime && make -C runtime test
+      - name: Tests
+        run: python -m pytest -q
+      - name: Upload libsfrt
+        if: matrix.os == 'ubuntu-24.04-arm'
+        uses: actions/upload-artifact@v4
+        with:
+          name: libsfrt-linux-aarch64
+          path: |
+            runtime/build/libsfrt.so
+            runtime/build/sfrt_run
