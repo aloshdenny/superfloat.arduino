@@ -33,7 +33,8 @@ done
 mkdir -p "$DEST/python/vendor" "$DEST/models" "$DEST/data"
 cp -R "$ROOT/sfedge" "$DEST/python/vendor/"
 rm -rf "$DEST/python/vendor/sfedge/__pycache__"
-cp "$ROOT/runtime/build/libsfrt.so" "$DEST/python/vendor/"
+# libsfrt.so on the board; .dylib when rehearsing the deploy on a Mac
+cp "$ROOT"/runtime/build/libsfrt.* "$DEST/python/vendor/"
 cp "$MODEL" "$DEST/models/smokenet.sfm"
 [ -f "$DEST/config.json" ] || cp "$SRC/config.example.json" "$DEST/config.json"
 
