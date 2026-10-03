@@ -96,3 +96,24 @@ def test_detector_rejects_mismatched_grid(smoke_model):
 
     with pytest.raises(ValueError, match="model expects"):
         TileDetector(smoke_model, TileGrid(4, 2, 64))
+
+
+def test_masked_tiles_are_never_scored(smoke_model, tmp_path):
+    from sentinel.detector import TileDetector
+
+    from sfedge.tiling import TileGrid
+
+    det = TileDetector(smoke_model, TileGrid(4, 2, 32), threads=1, mask=[0, 5])
+    calls = []
+    run = det.model.run_rgb8
+    det.model.run_rgb8 = lambda t: calls.append(1) or run(t)
+    probs = det.classify(np.random.default_rng(1).integers(0, 256, (64, 128, 3), dtype=np.uint8))
+    assert len(calls) == 6
+    assert probs[0].tolist() == [1.0, 0.0, 0.0] and probs[5].tolist() == [1.0, 0.0, 0.0]
+    with pytest.raises(ValueError, match="outside"):
+        TileDetector(smoke_model, TileGrid(4, 2, 32), mask=[8])
+
+
+def test_example_config_parses():
+    cfg = load_config(ROOT / "uno_q" / "wildfire-sentinel" / "config.example.json")
+    assert cfg.grid_cols * cfg.grid_rows == 15 and cfg.voter.smoke_k == 4
