@@ -35,6 +35,9 @@ class Config:
     grid_cols: int = 5
     grid_rows: int = 3
     tile: int = 128
+    # Tiles never scored and always reported clear: homes, roads, trails, or
+    # anything else in view that is not the landscape being watched.
+    mask_tiles: list[int] = field(default_factory=list)
 
     voter: VoterConfig = field(default_factory=VoterConfig)
 

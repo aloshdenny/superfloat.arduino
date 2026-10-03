@@ -19,7 +19,7 @@ def softmax(z: np.ndarray) -> np.ndarray:
 
 
 class TileDetector:
-    def __init__(self, model_path, grid: TileGrid, threads: int = 4, lib=None):
+    def __init__(self, model_path, grid: TileGrid, threads: int = 4, lib=None, mask=()):
         self.model = Model(model_path, lib_path=lib)
         if self.model.input_shape != (grid.tile, grid.tile, 3):
             raise ValueError(f"model expects {self.model.input_shape}, grid makes "
@@ -27,6 +27,10 @@ class TileDetector:
         if not self.model.raw_output:
             raise ValueError("expected a model with raw logits as output")
         self.grid = grid
+        bad = [t for t in mask if not 0 <= t < grid.count]
+        if bad:
+            raise ValueError(f"mask_tiles {bad} outside the {grid.count}-tile grid")
+        self.active = [t for t in range(grid.count) if t not in set(mask)]
         self.scale = logits_scale(self.model.graph)
         self.labels = self.model.labels
         # One worker per A53 core. The runtime releases the GIL, so these run
@@ -35,10 +39,13 @@ class TileDetector:
         self.last_ms = 0.0
 
     def classify(self, frame_rgb: np.ndarray) -> np.ndarray:
+        """(n_tiles, 3) probabilities; masked tiles are reported as certain clear."""
         t0 = time.perf_counter()
         tiles = self.grid.split(self.grid.fit(frame_rgb))
-        raw = np.stack(list(self.pool.map(self.model.run_rgb8, tiles)))
-        probs = softmax(raw.astype(np.float64) * self.scale)
+        probs = np.tile([1.0, 0.0, 0.0], (self.grid.count, 1))
+        if self.active:
+            raw = np.stack(list(self.pool.map(self.model.run_rgb8, tiles[self.active])))
+            probs[self.active] = softmax(raw.astype(np.float64) * self.scale)
         self.last_ms = (time.perf_counter() - t0) * 1e3
         return probs
 

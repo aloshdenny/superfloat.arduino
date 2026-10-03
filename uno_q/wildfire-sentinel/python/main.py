@@ -41,7 +41,7 @@ class Sentinel:
         self.board = board
         self.grid = TileGrid(cfg.grid_cols, cfg.grid_rows, cfg.tile)
         lib = cfg.lib or _vendored_lib()
-        self.detector = TileDetector(cfg.model, self.grid, cfg.threads, lib=lib)
+        self.detector = TileDetector(cfg.model, self.grid, cfg.threads, lib=lib, mask=cfg.mask_tiles)
         self.voter = TemporalVoter(self.grid.count, cfg.voter)
         if transports is None:
             transports = [LogTransport(log.info)]
