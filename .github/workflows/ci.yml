@@ -19,7 +19,7 @@ jobs:
           python-version: "3.12"
       - name: Install
         run: |
-          pip install numpy pillow pytest
+          pip install numpy pillow pytest onnx onnxruntime
           pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Runtime self-test
         run: make -C runtime && make -C runtime test
