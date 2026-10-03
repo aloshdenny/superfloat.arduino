@@ -1,5 +1,7 @@
 # superfloat.arduino
 
+[![ci](https://github.com/aloshdenny/superfloat.arduino/actions/workflows/ci.yml/badge.svg)](https://github.com/aloshdenny/superfloat.arduino/actions/workflows/ci.yml)
+
 Integer-only [SuperFloat](https://github.com/aloshdenny/superfloat) inference
 for the Arduino UNO Q, and the application it was built for: **Wildfire
 Sentinel**, an off-grid node that detects wildfire smoke and ignitions on the
@@ -121,6 +123,8 @@ python tools/edge_impulse.py deploy runs/smoke-sf8/twin.onnx --out runs/smoke-sf
 - [Privacy and scope](docs/privacy.md): no person class, no stored frames, siting
   guidance
 - [Datasets](docs/datasets.md) and [roadmap](docs/roadmap.md)
+- [Adapting it](docs/adapting.md): other hazards, models, boards and alert
+  paths
 - [Hardware](hardware/BOM.md): BOM, power budget, [wiring](hardware/wiring.md),
   [mount](hardware/enclosure/sentinel_mount.scad)
 - [Contest proposal](docs/proposal.md): Resilient America Preparedness Challenge
