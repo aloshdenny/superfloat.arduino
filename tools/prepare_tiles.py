@@ -29,7 +29,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from sfedge.models import SMOKE_LABELS  # noqa: E402
+from sfedge.labels import SMOKE_LABELS  # noqa: E402
 from sfedge.tiling import TileGrid, label_tiles, yolo_to_corners  # noqa: E402
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp"}

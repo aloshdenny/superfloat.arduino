@@ -22,10 +22,10 @@ from __future__ import annotations
 
 import torch.nn as nn
 
+from .labels import EMBER_LABELS, SMOKE_LABELS
 from .qat import SFConv2d, SFGlobalAvgPool, SFLinear
 
-SMOKE_LABELS = ["clear", "smoke", "flame"]
-EMBER_LABELS = ["ambient", "hotspot"]
+__all__ = ["EMBER_LABELS", "SMOKE_LABELS", "SFChain", "embernet", "smokenet", "MODELS"]
 
 
 class SFChain(nn.Sequential):
