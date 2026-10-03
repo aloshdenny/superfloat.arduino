@@ -55,6 +55,7 @@ Measured figures replace these once the boards arrive (docs/roadmap.md).
   efficiency, needs 43 W. That gives a 60 W panel with margin.
 - **Battery:** 3 days with no sun is 273 Wh. A 320 Wh LiFePO4 pack covers it at
   85% depth of discharge.
-- **Night duty cycling:** smoke is invisible at night. Dropping the camera to
-  one frame per 10 s and leaning on the thermal tier cuts the night-time load
-  roughly in half. This will be measured in stage 2.
+- **Night duty cycling:** smoke is invisible at night. When frames go dark the
+  app drops to one frame per 10 s (`night_period_s`) and leans on the thermal
+  tier. The saving is estimated at about half the night-time load; it will be
+  measured in stage 2.
