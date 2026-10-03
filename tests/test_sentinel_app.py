@@ -117,3 +117,15 @@ def test_masked_tiles_are_never_scored(smoke_model, tmp_path):
 def test_example_config_parses():
     cfg = load_config(ROOT / "uno_q" / "wildfire-sentinel" / "config.example.json")
     assert cfg.grid_cols * cfg.grid_rows == 15 and cfg.voter.smoke_k == 4
+
+
+def test_night_slows_the_camera_tier(smoke_model, tmp_path):
+    from main import Sentinel
+
+    cfg = Config(model=str(smoke_model), tile=32, grid_cols=4, grid_rows=2, threads=1,
+                 queue_path=str(tmp_path / "q.jsonl"), period_s=2.0, night_period_s=10.0)
+    s = Sentinel(cfg, RecordingBoard())
+    s.step(np.full((64, 128, 3), 140, np.uint8), t=0.0)
+    assert not s.night and s.period() == 2.0
+    s.step(np.full((64, 128, 3), 8, np.uint8), t=2.0)
+    assert s.night and s.period() == 10.0 and s.status()["night"] is True
