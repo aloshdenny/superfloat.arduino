@@ -31,7 +31,8 @@ Prices are indicative single-unit US retail (2026) and exclude shipping.
 | Part | Example | Qty | ~USD | Notes |
 | --- | --- | --- | --- | --- |
 | IP65 polycarbonate box, ~200x150x100 mm, clear lid | | 1 | 25 | camera looks through the lid |
-| Printed mount plate + sun hood | `enclosure/sentinel_mount.scad` | 1 | 3 | PETG or ASA for UV |
+| Printed mount plate, IR window ring, sun hood | `enclosure/sentinel_mount.scad` | 1 | 3 | PETG or ASA for UV |
+| IR window: 0.1 mm HDPE film, or a 20 mm germanium window | | 1 | 2 / 40 | polycarbonate blocks 8-14 µm, so the MLX90640 needs its own window |
 | Pressure-equalising vent, M12 | | 1 | 4 | stops condensation pumping |
 | Silica gel desiccant, 10 g | | 2 | 1 | replace at each service |
 | Pole clamp kit, 40-60 mm | | 1 | 12 | |

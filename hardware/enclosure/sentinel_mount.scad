@@ -1,16 +1,24 @@
-// Wildfire sentinel: internal mount plate and sun hood.
+// Wildfire sentinel: internal mount plate, IR window ring and sun hood.
 //
-// The plate drops into a standard IP65 junction box (inner floor ~190 x 140 mm)
-// and carries the UNO Q on standoffs, with a camera bracket and the MLX90640
-// side by side behind the clear lid. The hood clips over the lid edge to keep
-// low sun and rain streaks off the camera window.
+// The plate drops into a standard IP65 junction box (inner floor ~190 x 140 mm,
+// ~100 mm deep) and carries the UNO Q on standoffs. The camera and the MLX90640
+// sit on raised platforms facing the clear lid (+z), tilted cam_tilt degrees
+// downward. The box is pole-mounted with the lid facing the horizon and the
+// plate's +y edge at the top.
+//
+// Polycarbonate is opaque to long-wave infrared, so the thermal sensor looks
+// through its own window: drill a 16 mm hole in the lid in front of it and
+// clamp 0.1 mm HDPE film (the material of PIR sensor lenses, ~80% transmissive
+// at 8-14 um) or a germanium window under the printed ring. The hood clips over
+// the lid edge to keep low sun and rain streaks off both windows.
 //
 // Render one part at a time:
-//   openscad -D 'part="plate"' -o plate.stl sentinel_mount.scad
-//   openscad -D 'part="hood"'  -o hood.stl  sentinel_mount.scad
+//   openscad -D 'part="plate"'  -o plate.stl  sentinel_mount.scad
+//   openscad -D 'part="window"' -o window.stl sentinel_mount.scad
+//   openscad -D 'part="hood"'   -o hood.stl   sentinel_mount.scad
 // Print in PETG or ASA (PLA creeps in a sun-heated box), 0.2 mm layers.
 
-part = "plate";           // "plate" | "hood" | "assembly"
+part = "plate";           // "plate" | "window" | "hood" | "assembly"
 
 /* [Box] */
 plate_w = 186;            // fit to the box's inner floor, minus clearance
@@ -27,17 +35,23 @@ standoff_d = 6;
 m25_clear = 2.7;          // M2.5 self-tapping into the standoff: use 2.2
 board_pos = [12, 70];
 
-/* [Camera] bracket for a 32 x 32 mm UVC board camera, lens forward */
+/* [Camera] platform for a 32 x 32 mm UVC board camera, lens toward the lid */
 cam_board = 32;
 cam_holes = 28;           // square hole pattern, M2
 cam_tilt = 8;             // degrees below horizontal: ridge lines sit low
-cam_pos = [120, 100];
+cam_pos = [120, 95];      // platform centre on the plate
+mount_h = 70;             // platform height: lens 5-10 mm behind a lid ~95 mm up
 
-/* [Thermal] MLX90640 breakout (Adafruit 25.4 x 17.8 mm) */
+/* [Thermal] MLX90640 breakout (Adafruit 25.4 x 17.8 mm), sensor toward the lid */
 th_w = 25.4;
 th_d = 17.8;
 th_holes = [[2.5, 2.5], [22.9, 2.5]];
-th_pos = [158, 100];
+th_pos = [164, 95];
+
+/* [IR window] clamp ring for HDPE film or a germanium window over a 16 mm lid hole */
+win_hole = 16;
+win_od = 36;
+win_t = 3;
 
 /* [Hood] */
 hood_depth = 60;
@@ -64,30 +78,44 @@ module uno_mount() {
         translate([p[0], p[1], plate_t - embed]) standoff(standoff_h + embed, standoff_d, 2.2);
 }
 
-// A tilted wall the camera board screws onto, lens through a window.
-module camera_bracket() {
-    wall_h = cam_board + 10;
-    translate([cam_pos[0], cam_pos[1], plate_t - embed]) {
-        rotate([90 - cam_tilt, 0, 0]) difference() {
-            translate([-5, 0, 0]) cube([cam_board + 10, wall_h, 4]);
-            translate([cam_board / 2, wall_h / 2 + 2, -0.1]) cylinder(d = 14, h = 5);  // lens
-            for (dx = [-1, 1], dy = [-1, 1])
-                translate([cam_board / 2 + dx * cam_holes / 2, wall_h / 2 + 2 + dy * cam_holes / 2, -0.1])
-                    cylinder(d = 1.8, h = 5);
+// A platform on four legs, tilted cam_tilt degrees about x so the optical axis
+// points slightly below the horizon when the box is pole-mounted.
+module tilted_platform(pos, w, d) {
+    translate([pos[0], pos[1], 0]) {
+        translate([0, 0, mount_h]) rotate([cam_tilt, 0, 0]) difference() {
+            translate([-w / 2, -d / 2, -3]) cube([w, d, 3]);
+            children();
         }
-        // foot that ties the tilted wall into the plate
-        translate([-5, -14, 0]) cube([cam_board + 10, 16, 3 + embed]);
+        for (dx = [-1, 1], dy = [-1, 1]) hull() {
+            translate([dx * (w / 2 - 3), dy * (d / 2 - 3), plate_t - embed]) cylinder(d = 6, h = 1);
+            translate([0, 0, mount_h]) rotate([cam_tilt, 0, 0])
+                translate([dx * (w / 2 - 3), dy * (d / 2 - 3), -3]) cylinder(d = 6, h = 3);
+        }
+    }
+}
+
+module camera_bracket() {
+    tilted_platform(cam_pos, cam_board + 8, cam_board + 8) {
+        translate([-6, -9, -4]) cube([12, 18, 5]);  // pass-through for the USB lead
+        for (dx = [-1, 1], dy = [-1, 1])
+            translate([dx * cam_holes / 2, dy * cam_holes / 2, -4]) cylinder(d = 1.8, h = 5);
     }
 }
 
 module thermal_bracket() {
-    translate([th_pos[0], th_pos[1], plate_t - embed]) {
-        rotate([90 - cam_tilt, 0, 0]) difference() {
-            cube([th_w + 6, th_d + 14, 3]);
-            translate([3 + th_w / 2, 7 + th_d / 2, -0.1]) cylinder(d = 10, h = 4);  // sensor window
-            for (p = th_holes) translate([3 + p[0], 7 + p[1], -0.1]) cylinder(d = 2.7, h = 4);
-        }
-        translate([0, -14, 0]) cube([th_w + 6, 16, 3 + embed]);
+    tilted_platform(th_pos, th_w + 6, th_d + 10) {
+        translate([-th_w / 2 + 2, -th_d / 2 + 2, -4]) cube([th_w - 4, 6, 5]);  // Qwiic leads
+        for (p = th_holes) translate([p[0] - th_w / 2, p[1] - th_d / 2, -4]) cylinder(d = 2.7, h = 5);
+    }
+}
+
+// Clamps the IR window material over the lid hole; three M3 screws, silicone
+// bead under the film for the seal.
+module window_ring() {
+    difference() {
+        cylinder(d = win_od, h = win_t);
+        translate([0, 0, -0.1]) cylinder(d = win_hole - 2, h = win_t + 0.2);
+        for (a = [0, 120, 240]) rotate([0, 0, a]) translate([win_od / 2 - 5, 0, -0.1]) cylinder(d = 3.4, h = win_t + 0.2);
     }
 }
 
@@ -120,6 +148,7 @@ module hood() {
 }
 
 if (part == "plate") plate();
+else if (part == "window") window_ring();
 else if (part == "hood") hood();
 else {
     plate();
