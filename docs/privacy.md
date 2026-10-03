@@ -20,8 +20,9 @@ This is a design property, not only a policy.
 ## Siting guidance
 
 Point cameras at ridgelines, slopes and horizon, not at homes, roads or trails.
-Where a field of view unavoidably includes private property, mask those tiles in
-the configuration. Tile masking is planned for stage 2 (docs/roadmap.md).
+Where a field of view unavoidably includes private property, list those tiles
+in `mask_tiles` in `config.json`. Masked tiles are never passed to the model;
+they are reported as clear and cost no compute.
 Deployments on land the operator does not own need the landowner's permission,
 and should be signposted where people pass near the node.
 

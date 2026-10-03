@@ -14,6 +14,7 @@
   - camera tiling and parallel inference;
   - temporal voting;
   - store-and-forward alerts;
+  - tile masking for privacy;
   - offline status page;
   - MCU sketch with watchdog, matrix, buzzer and thermal tier.
 - Edge Impulse integration: dataset upload, ONNX float twin, profiling and
@@ -32,7 +33,7 @@ on a host against stub Arduino APIs only.
 | Oct 26 | Tune the temporal voter on HPWREN FIgLib sequences: time-to-detect vs false alarms per camera-day. |
 | Nov 2 | Thermal tier on real MLX90640 data: field captures, Edge Impulse labelling, EmberNet retrain. |
 | Nov 9 | Outdoor node: printed mount, enclosure, solar. Multi-day run with logging. |
-| Nov 16 | Tile masking for privacy; LoRa or Meshtastic alert transport for no-coverage sites. |
+| Nov 16 | LoRa or Meshtastic alert transport for no-coverage sites. |
 | Nov 23 | Write-up, adaptation guide, demo video. |
 | Dec 2 | Submission. |
 
